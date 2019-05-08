@@ -1,2 +1,14 @@
 ignore_files/*
 General.ipynb
+embeddings/CSLB
+embeddings/F2V_CSLB
+embeddings/PLSR50_CSLB
+embeddings/PLSR200_CSLB
+embeddings/MCRAE
+embeddings/F2V_MCRAE
+embeddings/PLSR50_MCRAE
+embeddings/PLSR200_MCRAE
+embeddings/SPACY
+data/benchmarks*
+.ipynb_checkpoints
+__pycache__
