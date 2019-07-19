@@ -1,12 +1,15 @@
-import numpy as np
-import pandas as pd
+import sys
+import numpy as np 
 from Norm import Norm
-from sklearn.cross_decomposition import PLSRegression
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.optimizers import Adam
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
 
 
-class PLSR(Norm):
-    """Class for handling PLSR regression model on human property knowledge
+class NeuralNetwork(Norm):
+    """Class for handling DNN model on human property knowledge
 
     Parameters
     ----------
@@ -22,7 +25,9 @@ class PLSR(Norm):
         self._build_embeddings()
         self._trained = False
         
-        
+        self.model = self._build_model(output_shape = self.data_matrix.shape[1])
+    
+    
     def set_vocabulary(self, train_words):
         """Function to set training words, and use the test for testing"""
         if np.array_equal(train_words, []):
@@ -34,32 +39,68 @@ class PLSR(Norm):
         self._train_data, self._train_response = self._build_data(
             self._train_words)
         self._test_data, self._test_response = self._build_data(self._test_words)
+    
         
+    def _build_model(self, output_shape):
+        '''Function to build neural network model'''
+
+        model = Sequential()
+        model.add(Dense(300, activation = 'relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(800, activation = 'relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(1500, activation = 'relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(2000, activation = 'relu'))
+        model.add(Dense(output_shape, activation = 'softmax'))
         
-    def train(self, embedding_size=50, max_iter=2000):
-        """method for training partial least squared regression model, also makes predictions 
+        return model
+
+        
+    def train(self, epochs = 120, batch_size = 20, verbose = 1):
+        """method for training neural network model, also makes predictions 
            on both training and testing data which is saved. 
 
         Parameters
         ----------
 
-        embedding_size : int
-            size of embedding for partial least squared regression 
+        epochs : int
+            number of training epochs
 
-        max_iter : int 
-            the maximum iterations of training befor stopping
+        batch_size : int 
+            size of training batches 
+            
+        verbose : int 
+            whether to be verbose or not during training
 
         ----------
-        """ 
-
-        self.embedding_size = embedding_size
-        self._regressor = PLSRegression(
-            n_components=embedding_size)
-        self._regressor.fit(self._train_data, self._train_response)
+        """
+        
+        self.model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['categorical_crossentropy'])
+        loss = 100
+        losses = []
+        
+        for epoch in range(epochs):
+            
+            if verbose == 1:
+                sys.stdout.write('\r' + 'Epoch: ' + str(epoch) + ' Loss: ' + str(loss))
+                
+            callback = self.model.fit(self._train_data, 
+                           normalize(self._train_response, norm = 'l1'), 
+                           epochs = 1, 
+                           verbose = 0,
+                           batch_size = batch_size)
+        
+            
+            loss = callback.history['loss'][0]
+            losses.append(loss)
+        
+        
+        self._train_preds = self.model.predict(self.train_data)
+        self._test_preds = self.model.predict(self.test_data)
         self._trained = True
-
-        self._train_preds = self._regressor.predict(self._train_data)
-        self._test_preds = self._regressor.predict(self._test_data)
+        
+        return losses
     
     
     def predictions(self, data_type='train'):
@@ -81,9 +122,10 @@ class PLSR(Norm):
 
         return np.flip([(self.id2concept[num], mat[0, num]) for num in np.argsort(mat[0, :])[-top:]])
     
+    
     def top_features(self, vector, top = 10):
         """Function that gives the top cosine similar features for a word vector"""
-        mat = self._regressor.predict([vector])
+        mat = self.model.predict(vector.reshape(1, len(vector)))
 
         return np.flip([(self.id2feature[num], mat[0,num]) for num in np.argsort(mat[0,:])[-top:]])
     
@@ -92,6 +134,7 @@ class PLSR(Norm):
         """Function to get word embedding from spacy """
     
         return self.embedding_matrix[:, self.concept2id[word]]
+    
     
     @property
     def train_data(self):

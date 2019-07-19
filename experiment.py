@@ -1,157 +1,152 @@
-import numpy as np 
-from Feat2Vec import Feat2Vec 
+import numpy as np
+from Feat2Vec import Feat2Vec
 from PLSR import PLSR
+from NeuralNetwork import NeuralNetwork
 from sklearn.metrics.pairwise import cosine_similarity
-# save embeddings for intrinsic evaluations 
-import os 
-import vecto
-import vecto.embeddings 
-from utils import * 
-import sys 
+from sklearn.metrics import accuracy_score
+import os
+from utils import *
+import sys
 import timeit
+import pickle as pkl
 
 
+def init_state():
+    """Function to load and set numpy state for experiments
+       used in the paper <INSERT PAPER>"""
+    
+    with open('state_zero.pkl', 'rb') as f:
+        st0 = pkl.load(f)
+        
+    np.random.set_state(st0)
+    
 
 if __name__ == '__main__':
-    
     start_time = timeit.default_timer()
-    
+
     arg = sys.argv[1]
-    
+
+    SEED = 42
+    np.random.seed(seed = SEED)
+
+    PLSR_SMALL_DIMS = 50
+    PLSR_LARGE_DIMS = 120
+
     if arg == 'mcrae':
         path = 'data/mcrae_feature_matrix.csv'
         prefix = 'MCRAE'
         concept_index = 400
-        
+
     if arg == 'cslb':
         path = 'data/cslb_feature_matrix.csv'
         prefix = 'CSLB'
         concept_index = 500
-        
-    if arg not in ['mcrae', 'cslb']: 
+
+    if arg not in ['mcrae', 'cslb']:
         print('Not a recognised command')
         sys.exit()
-        
+
     # build and train feature2vec
     print('Using', prefix)
     print('Building feat2vec')
     model = Feat2Vec(path = path)
-    train_concepts = model.concepts[:concept_index]
-    test_concepts = model.concepts[concept_index:]
     
+    init_state()
+    shuffle = np.random.permutation(len(model.concepts))
+    train_concepts = list(np.asarray(model.concepts)[shuffle][:concept_index])
+    test_concepts = list(np.asarray(model.concepts)[shuffle][concept_index:])
+    
+    model.set_vocabulary(train_words = train_concepts)
+
     print('Training feat2vec')
-    model.train(till_convergence = True, verbose = 0, tolerence = 1e-4, lr = 1e-4, negative_samples = 20, train_words = train_concepts)
+    model.train(verbose = 1, epochs = 20, lr = 5e-3, negative_samples = 20, train_words = train_concepts)
     print('')
-    
+
     # test for word dog
     print('Example features learned for word: dog')
-    print(model.topFeatures('dog', top = 10))
+    print(model.top_features(model.wvector('dog'), top = 10))
     print('')
-    
-    # build baseline model (50 and 200)
-    print('Building partial least squared regression (baseline)')
-    plsr50 = PLSR(path = path)
-    plsr50.train(train_words = train_concepts, embedding_size = 50)
 
-    plsr200 = PLSR(path = path)
-    plsr200.train(train_words = train_concepts, embedding_size = 200)
+    # build baseline model (50 and 120)
+    print('Building partial least squared regression (baseline)')
+    plsr_small = PLSR(path = path)
+    plsr_small.set_vocabulary(train_words = train_concepts)
+    plsr_small.train(embedding_size = PLSR_SMALL_DIMS)
+
+    plsr_large = PLSR(path = path)
+    plsr_large.set_vocabulary(train_words = train_concepts)
+    plsr_large.train(embedding_size = PLSR_LARGE_DIMS)
     print('')
-    
-    concept_dict_plsr50 = {}
+
+    concept_dict_plsr_small = {}
     for index, concept in enumerate(model.test_words):
-        concept_dict_plsr50[concept] = plsr50.test_preds[index,:]
+        concept_dict_plsr_small[concept] = plsr_small.test_preds[index,:]
+
+    concept_dict_plsr_large = {}
+    for index, concept in enumerate(model.test_words):
+        concept_dict_plsr_large[concept] = plsr_large.test_preds[index,:]
         
-    concept_dict_plsr200 = {}
-    for index, concept in enumerate(model.test_words):
-        concept_dict_plsr200[concept] = plsr200.test_preds[index,:]
+    print('Training Neural Network')
+    nn = NeuralNetwork(path = path)
+    nn.set_vocabulary(train_words = train_concepts)
+    nn.train(verbose = 1, epochs = 150, batch_size = 20)
     
+    concept_dict_nn = {}
+    for index, concept in enumerate(nn.test_words):
+        concept_dict_nn[concept] = nn.test_preds[index,:]
+
     print('')
     print('Evaluation: Retrieval of gold standard vectors')
     print('PLSR 50 neighbour scores')
     tops = [1, 5, 10, 20]
     for n in tops:
-        print('Top', n, neighbourScore(concept_dict_plsr50, plsr50, top = n, gsf = True))
+        print('Top', n, neighbour_score(concept_dict_plsr_small, plsr_small, top = n))
     print('')
-        
-    print('PLSR 200 neighbour scores')
+
+    print('PLSR 120 neighbour scores')
     tops = [1, 5, 10, 20]
     for n in tops:
-        print('Top', n, neighbourScore(concept_dict_plsr200, plsr200, top = n, gsf = True))
+        print('Top', n, neighbour_score(concept_dict_plsr_large, plsr_large, top = n))
     print('')
     
+    print('Neural Network neighbour scores')
+    tops = [1, 5, 10, 20]
+    for n in tops:
+        print('Top', n, neighbour_score(concept_dict_nn, nn, top = n))
+    print('')
+
     concept_dict_f2v = {}
     for index, concept in enumerate(model.test_words):
-        concept_dict_f2v[concept] = constructVector(concept, model)
+        concept_dict_f2v[concept] = construct_vector(concept, model)
 
     print('Feature2Vec neighbour scores')
     tops = [1, 5, 10, 20]
     for n in tops:
-        print('Top', n, neighbourScore(concept_dict_f2v, model, top = n, gsf = False))
+        print('Top', n, neighbour_score(concept_dict_f2v, model, top = n))
     print('')
-            
-    print('Evaluation: Feature retrieval scores')
+    
+    ############################################################################################################
+    print('Evaluation: Feature retrieval scores: ACCURACY')
     print('PLSR 50 Scores')
-    print('Train:', np.mean(plsr50.feature_score(type = 'train'))*100)
-    print('Test:', np.mean(plsr50.feature_score(type = 'test'))*100)
+    print('Train:', np.mean(feature_score(plsr_small, data_type = 'train', max_features = 0, score_func = accuracy_score))*100)
+    print('Test:', np.mean(feature_score(plsr_small, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
+    print('')
+
+    print('PLSR 120 Scores')
+    print('Train:', np.mean(feature_score(plsr_large, data_type = 'train', max_features = 0, score_func = accuracy_score))*100)
+    print('Test:', np.mean(feature_score(plsr_large, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
     print('')
     
-    print('PLSR 200 Scores')
-    print('Train:', np.mean(plsr200.feature_score(type = 'train'))*100)
-    print('Test:', np.mean(plsr200.feature_score(type = 'test'))*100)
+    print('Neural Network Scores')
+    print('Train:', np.mean(feature_score(nn, data_type = 'train', max_features = 0, score_func = accuracy_score))*100)
+    print('Test:', np.mean(feature_score(nn, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
     print('')
-    
+
     print('Feat2Vec Scores')
-    print('Train:', np.mean(model.feature_score(type = 'train'))*100)
-    print('Test:', np.mean(model.feature_score(type = 'test'))*100)
+    print('Train:', np.mean(feature_score(model, data_type = 'train', max_features = 0, score_func = accuracy_score))*100)
+    print('Test:', np.mean(feature_score(model, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
     print('')
+    ############################################################################################################
     
-    if not all([x in os.listdir('embeddings') for x in ['PLSR50_' + prefix, 'PLSR200_' + prefix, 'F2V_' + prefix]]):
-        print('Building embedding vectors')
-        plsr50_embs = dict(zip(plsr50.concepts, plsr50.regressor.predict(plsr50.embedding_matrix.T)))
-        plsr200_embs = dict(zip(plsr200.concepts, plsr200.regressor.predict(plsr200.embedding_matrix.T)))
-
-        f2v_embs = {}
-        for index, concept in enumerate(model.concepts):
-            f2v_embs[concept] = constructVector(concept, model)
-
-        saveEmbs(plsr50_embs, name = 'PLSR50_' + prefix)
-        saveEmbs(plsr200_embs, name = 'PLSR200_' + prefix)
-        saveEmbs(f2v_embs, name = 'F2V_' + prefix)
-
-        plsr50_vsm = vecto.embeddings.load_from_dir('embeddings/PLSR50_' + prefix)
-        plsr200_vsm = vecto.embeddings.load_from_dir('embeddings/PLSR200_' + prefix)
-        f2v_vsm = vecto.embeddings.load_from_dir('embeddings/F2V_' + prefix)
-    
-    print('')
-    print('Scoring VSMs')
-    plsr50_vsm = vecto.embeddings.load_from_dir('embeddings/PLSR50_' + prefix)
-    plsr200_vsm = vecto.embeddings.load_from_dir('embeddings/PLSR200_' + prefix)
-    f2v_vsm = vecto.embeddings.load_from_dir('embeddings/F2V_' + prefix)
-    
-    print('PLSR50 scores')
-    vectoBenchmark(plsr50_vsm)
-    print('')
-    
-    print('PLSR200 scores')
-    vectoBenchmark(plsr200_vsm)
-    print('')
-    
-    print('F2V scores')
-    vectoBenchmark(f2v_vsm)
-    print('')
-    
-    if not prefix in os.listdir('embeddings'):
-        embs = {}
-        for concept in model.concepts:
-            embs[concept] = model.data_matrix[model.concept2id[concept],:]
-            
-        saveEmbs(embs, name = prefix)
-        
-    emb_vsm = vecto.embeddings.load_from_dir('embeddings/' + prefix)
-    print(prefix, 'scores on similarity benchmarks')
-    vectoBenchmark(emb_vsm)
     print('')
     print('Time:', timeit.default_timer() - start_time)
-            
-            
-        
