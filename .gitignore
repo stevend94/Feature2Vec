@@ -6,3 +6,4 @@ Analysis.ipynb
 ignore_files/*
 docstring.txt
 .ipynb_checkpoints/*
+__pycache__/
