@@ -7,3 +7,5 @@ ignore_files/*
 docstrings.txt
 .ipynb_checkpoints/*
 __pycache__/
+data/cslb_feature_matrix.csv
+data/mcrae_feature_matrix.csv

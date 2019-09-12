@@ -14,7 +14,7 @@ import tensorflow as tf
 from utils import *
 
 
-class Feat2Vec(Norm):
+class Feature2Vec(Norm):
     def __init__(self, path = 'data/cslb_feature_matrix.csv'):
         '''
             Initial new embedding model or load in values from previous model (train words must be constructed)
@@ -267,5 +267,5 @@ class Feat2Vec(Norm):
     
     
 if __name__ == '__main__':
-    model = Feat2Vec()
+    model = Feature2Vec()
     model.train(till_convergence = True, verbose = 0)

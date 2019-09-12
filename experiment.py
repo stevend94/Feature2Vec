@@ -1,5 +1,5 @@
 import numpy as np
-from Feat2Vec import Feat2Vec
+from Feature2Vec import Feature2Vec
 from PLSR import PLSR
 from NeuralNetwork import NeuralNetwork
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,7 +13,7 @@ import pickle as pkl
 
 def init_state():
     """Function to load and set numpy state for experiments
-       used in the paper <INSERT PAPER>"""
+       used in the paper"""
     
     with open('state_zero.pkl', 'rb') as f:
         st0 = pkl.load(f)
@@ -48,8 +48,8 @@ if __name__ == '__main__':
 
     # build and train feature2vec
     print('Using', prefix)
-    print('Building feat2vec')
-    model = Feat2Vec(path = path)
+    print('Building feature2vec')
+    model = Feature2Vec(path = path)
     
     init_state()
     shuffle = np.random.permutation(len(model.concepts))
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     
     model.set_vocabulary(train_words = train_concepts)
 
-    print('Training feat2vec')
+    print('Training feature2vec')
     model.train(verbose = 1, epochs = 20, lr = 5e-3, negative_samples = 20, train_words = train_concepts)
     print('')
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     print('Test:', np.mean(feature_score(nn, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
     print('')
 
-    print('Feat2Vec Scores')
+    print('Feature2Vec Scores')
     print('Train:', np.mean(feature_score(model, data_type = 'train', max_features = 0, score_func = accuracy_score))*100)
     print('Test:', np.mean(feature_score(model, data_type = 'test', max_features = 0, score_func = accuracy_score))*100)
     print('')
