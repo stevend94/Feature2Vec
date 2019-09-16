@@ -3,6 +3,55 @@ import spacy
 import numpy as np 
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import accuracy_score
+import pandas as pd 
+
+
+def retrieve_info(dataframe):
+    """Function to extract features and concepts from dataframe"""
+    concepts = []
+    features = []
+
+    for num in range(dataframe.values.shape[0]):
+        c = dataframe.iloc[num]['Concept']
+        if c not in concepts:
+            concepts.append(c)
+
+    for num in range(dataframe.values.shape[0]):
+        f = dataframe.iloc[num]['Feature']
+        if f not in features:
+            features.append(f)
+            
+    return concepts, features
+
+
+def build_norms(path, save_path):
+    """Function to build dataframe from feature norms and save as csv. Spefically 
+       for the mcrae excel data from https://sites.google.com/site/kenmcraelab/norms-data"""
+    
+    dataframe = pd.read_excel(path)
+    
+    concepts, features = retrieve_info(dataframe)
+    feature_to_id = dict(zip(features, list(range(len(features)))))
+    concept_to_id = dict(zip(concepts, list(range(len(concepts)))))
+    
+    # get production frequencies in a matrix format
+    matrix = np.zeros((len(concepts), len(features)))
+    for num in range(dataframe.values.shape[0]):
+        c = dataframe.iloc[num]['Concept']
+        f = dataframe.iloc[num]['Feature']
+        matrix[concept_to_id[c], feature_to_id[f]] = dataframe.iloc[num]['Prod_Freq']
+    
+    
+    # build dataframe of norms using dictionary 
+    data_dict = {}
+    data_dict['Vectors'] = concepts
+
+    for feature in features:
+        data_dict[feature] = matrix[:, feature_to_id[feature]]
+    
+    
+    data_frame = pd.DataFrame(data_dict)
+    data_frame.to_csv(save)path
 
 
 def neighbour_score(concept_dict, model, top = 10):
