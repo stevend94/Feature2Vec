@@ -16,7 +16,11 @@ Code ran on ubuntu 16.04 with anaconda python distribution with python 3.6.9. Pa
 * jupyter lab 
 * conda_nb 
 
+[![Spacy](http://img.shields.io/badge/spacy%3A-008000.svg)](https://spacy.io/models/en)
 spacy requirees the en_core_web_sm langauge mode.
-[![Spacy](http://img.shields.io/badge/spacy%3Aen-008000.svg)](https://arxiv.org/abs/1908.11439)
+
+
+
+
 
 
