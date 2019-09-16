@@ -3,4 +3,6 @@
 
 Code used in the paper Feature2Vec: Distributional semantic modelling of human property knowledge. 
 
+![Feature2Vec](https://raw.githubusercontent.com/stevend94/Feature2Vec/imgs/arch5.png)
+
 
