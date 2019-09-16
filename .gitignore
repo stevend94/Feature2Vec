@@ -9,3 +9,4 @@ docstrings.txt
 __pycache__/
 data/cslb_feature_matrix.csv
 data/mcrae_feature_matrix.csv
+data/.ipynb_checkpoints
