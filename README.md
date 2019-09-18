@@ -17,7 +17,7 @@ Code ran on ubuntu 16.04 with anaconda python distribution with python 3.6.9. Pa
 * conda_nb 
 
 [![Spacy](http://img.shields.io/badge/spacy%3A-008000.svg)](https://spacy.io/models/en)
-spacy requirees the en_core_web_lg language model.
+spacy requires the en_core_web_lg language model.
 
 python -m spacy download en_core_web_lg 
 
