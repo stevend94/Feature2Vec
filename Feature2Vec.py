@@ -149,14 +149,6 @@ class Feature2Vec(Norm):
         
         self.model.compile(loss = 'binary_crossentropy', optimizer = Adam(lr=lr), metrics = ['accuracy'])
         
-        if not self._trained:
-            if np.array_equal(train_words, []):
-                train_words = self.concepts
-
-            # build skip-gram implementation for features 
-            self._train_words = train_words
-            self._test_words = [w for w in self.concepts if w not in train_words]
-        
         self._trained = True 
         
         # get training data
@@ -229,6 +221,38 @@ class Feature2Vec(Norm):
         mat = cosine_similarity([vector], self.embedding_matrix.T)
 
         return np.flip([(self.id2concept[num], mat[0,num]) for num in np.argsort(mat[0,:])[-top:]])
+    
+    
+     def save(self, path):
+        """Function to save all feature embeddings in a txt file"""
+        with open(path, 'a') as f:
+            for feature in self.features:
+                f.write(feature + ' ' + str(self.fvector(feature))[1:-1].replace('\n','')  + ' \n')
+                
+                
+    def load(self, path):
+        """Function to load feature embeddings in the form of a txt file"""
+        
+        self._trained = True
+        
+        embs = {}
+        with open(path, 'r') as f:
+            for line in f:
+                split_line = line.split()
+                feature = split_line[0]
+                vector = [float(i) for i in split_line[1:]]
+                embs[feature] = vector
+        
+        try:
+            assert list(embs.keys()) == self.features
+        except AssertionError as e:
+            e.args += ('Error', 'loaded features do not match the features in the dataset')
+            raise
+        
+                
+        self.feature_vectors = np.zeros((len(self.features), self.embedding_matrix.shape[0]))
+        for feature in self.features:
+            self.feature_vectors[self.feature2id[feature],:] = embs[feature]
     
     
     @property
