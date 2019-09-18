@@ -24,7 +24,7 @@ python -m spacy download en_core_web_lg
 ## Pretrained Embeddings 
 Pretrained embeddings for features, along with save/load functions, are now available. The embeddings are placed in the embeddings folder as .txt files. The embeddings were trained using all concepts and features. Feature2Vec still requires the spacy word embeddings and property norm datasets to run. See tsne below for example  of possible analysis.
 
-![Embeddings](https://github.com/stevend94/Feature2Vec/blob/master/imgs/arch5.png?style=centerme)
+![Embeddings](https://github.com/stevend94/Feature2Vec/blob/master/imgs/tsne.png?style=centerme)
 
 
 
