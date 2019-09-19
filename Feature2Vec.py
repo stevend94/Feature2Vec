@@ -182,7 +182,7 @@ class Feature2Vec(Norm):
     def fvector(self, feature):
         """Function to get property embedding for feature (IF TRAINED)"""
         
-        if np.array_equal(self.feature_vectors, []):
+        if self._trained == False:
             print('MUST RUN TRAINING FIRST')
             return None
         
@@ -288,8 +288,3 @@ class Feature2Vec(Norm):
     @property
     def trained(self):
         return self._trained
-    
-    
-if __name__ == '__main__':
-    model = Feature2Vec()
-    model.train(till_convergence = True, verbose = 0)
