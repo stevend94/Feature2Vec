@@ -1,0 +1,13 @@
+{
+ "embeddings": [
+  {
+   "tensorName": "feature2vec",
+   "tensorShape": [
+    3363,
+    300
+   ],
+   "tensorPath": "https://users.aalto.fi/~vanvlm1/feature2vec/vectors.tsv",
+   "metadataPath": "https://users.aalto.fi/~vanvlm1/feature2vec/metadata.tsv"
+  }
+ ]
+}
