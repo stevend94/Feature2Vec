@@ -19,7 +19,7 @@ class Norm:
     def __init__(self, path):
         self.feature_matrix, self.data_matrix = self._load(path = path)
         
-        self.concepts = list(self.feature_matrix['Vectors'].values)
+        self.concepts = list(self.feature_matrix.index.values)
         self.concept2id, self.id2concept = self._build_index(self.concepts)
         
         self.features = list(self.feature_matrix.columns[1:])

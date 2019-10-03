@@ -223,7 +223,7 @@ class Feature2Vec(Norm):
         return np.flip([(self.id2concept[num], mat[0,num]) for num in np.argsort(mat[0,:])[-top:]])
     
     
-     def save(self, path):
+    def save(self, path):
         """Function to save all feature embeddings in a txt file"""
         with open(path, 'a') as f:
             for feature in self.features:

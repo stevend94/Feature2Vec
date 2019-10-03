@@ -51,7 +51,7 @@ def build_norms(path, save_path):
     
     
     data_frame = pd.DataFrame(data_dict)
-    data_frame.to_csv(save)path
+    data_frame.to_csv(save_path)
 
 
 def neighbour_score(concept_dict, model, top = 10):
