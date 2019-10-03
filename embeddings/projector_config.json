@@ -6,8 +6,8 @@
     3363,
     300
    ],
-   "tensorPath": "https://users.aalto.fi/~vanvlm1/feature2vec/vectors.tsv",
-   "metadataPath": "https://users.aalto.fi/~vanvlm1/feature2vec/metadata.tsv"
+   "tensorPath": "https://raw.githubusercontent.com/wmvanvliet/Feature2Vec/tf_projector/embeddings/vectors.tsv",
+   "metadataPath": "https://raw.githubusercontent.com/wmvanvliet/Feature2Vec/tf_projector/embeddings/metadata.tsv"
   }
  ]
 }
