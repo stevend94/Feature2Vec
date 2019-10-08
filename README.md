@@ -16,6 +16,8 @@ Code ran on ubuntu 16.04 with anaconda python distribution with python 3.6.9. Pa
 * jupyter lab 
 * conda_nb 
 
+Note that the model probably trains faster on CPU but GPU versions of tensorflow and keras were used during experiments. We have also included a neural network class based on recent work https://www.mdpi.com/2504-2289/3/2/30 . We compare it with our model using hyper parameters that we found to work well (although better paramters may be found which could improve results).
+
 [![Spacy](http://img.shields.io/badge/spacy%3A-008000.svg)](https://spacy.io/models/en)
 spacy requires the en_core_web_lg language model.
 

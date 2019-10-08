@@ -59,7 +59,7 @@ if __name__ == '__main__':
     model.set_vocabulary(train_words = train_concepts)
 
     print('Training feature2vec')
-    model.train(verbose = 1, epochs = 20, lr = 5e-3, negative_samples = 20, train_words = train_concepts)
+    model.train(verbose = 1, epochs = 20, lr = 5e-3, negative_samples = 20)
     print('')
 
     # test for word dog

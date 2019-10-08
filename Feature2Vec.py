@@ -106,7 +106,7 @@ class Feature2Vec(Norm):
                                       trainable = True, name = 'property_embeddings')(property_input)
             
             word_embs = Embedding(len(self.concepts), self.embedding_matrix.shape[0], weights = [self.embedding_matrix.T],
-                                  trainable = True, name = 'words_embeddings')(word_input)
+                                  trainable = False, name = 'words_embeddings')(word_input)
 
         product = dot([word_embs, property_embs], axes=-1, normalize=False, name="dot_product")
         product = Flatten()(product)
@@ -115,7 +115,7 @@ class Feature2Vec(Norm):
         return Model(inputs = [word_input, property_input], outputs = output)
         
                     
-    def train(self, epochs = 100, batch_size = 6144, lr = 5e-3, train_words = [],
+    def train(self, epochs = 100, batch_size = 6144, lr = 5e-3,
               negative_samples = 1, seed = None, shuffle = True, verbose = 1):
         
         """method for training Feature2Vec model. 
@@ -158,7 +158,7 @@ class Feature2Vec(Norm):
             
             if verbose == 1:
                 sys.stdout.write('\r' + 'Epoch: ' + str(epoch) + ' Loss: ' + str(loss))
-            couples, labels, sample_weights = self._generate_samples(words=train_words,
+            couples, labels, sample_weights = self._generate_samples(words=self.train_words,
                                                                      weight_positives=False,
                                                                      negative_samples=negative_samples,
                                                                      shuffle=shuffle,
@@ -223,7 +223,7 @@ class Feature2Vec(Norm):
         return np.flip([(self.id2concept[num], mat[0,num]) for num in np.argsort(mat[0,:])[-top:]])
     
     
-     def save(self, path):
+    def save(self, path):
         """Function to save all feature embeddings in a txt file"""
         with open(path, 'a') as f:
             for feature in self.features:
