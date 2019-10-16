@@ -1,0 +1,13 @@
+{
+ "embeddings": [
+  {
+   "tensorName": "feature2vec",
+   "tensorShape": [
+    3363,
+    300
+   ],
+   "tensorPath": "https://raw.githubusercontent.com/wmvanvliet/Feature2Vec/tf_projector/embeddings/vectors.tsv",
+   "metadataPath": "https://raw.githubusercontent.com/wmvanvliet/Feature2Vec/tf_projector/embeddings/metadata.tsv"
+  }
+ ]
+}
