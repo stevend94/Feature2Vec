@@ -1,4 +1,6 @@
 data/benchmarks/
+data/cslb_feature_matrix.csv
+data/mcrae_feature_matrix.csv
 experiment_notebook_cslb.ipynb
 experiment_notebook_mcrae.ipynb
 Untitled.ipynb
