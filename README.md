@@ -29,7 +29,7 @@ Pretrained embeddings for features, along with save/load functions, are now avai
 For another good visualization, see the [tensorflow projection](https://projector.tensorflow.org/?config=https://raw.githubusercontent.com/wmvanvliet/Feature2Vec/tf_projector/embeddings/projector_config.json) kindly provided by [Marijn van Vliet](https://github.com/wmvanvliet).
 
 
-<img align="center" width="800" height="600" src="https://github.com/stevend94/Feature2Vec/blob/master/imgs/tsne.png">
+<img align="center" width="800" height="600" src="https://github.com/stevend94/Feature2Vec/blob/master/imgs/tsne2.png">
 
 
 
