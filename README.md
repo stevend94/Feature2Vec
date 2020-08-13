@@ -42,5 +42,5 @@ Please use the following bibtex entry:
   journal={arXiv preprint arXiv:1908.11439},
   year={2019}
 }
-}
+
 
