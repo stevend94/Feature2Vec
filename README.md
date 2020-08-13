@@ -32,5 +32,15 @@ For another good visualization, see the [tensorflow projection](https://projecto
 <img align="center" width="1000" height="500" src="https://github.com/stevend94/Feature2Vec/blob/master/imgs/tsne2.png">
 
 
+## How to Cite
 
+Please use the following bibtex entry:
+```
+@article{derby2019feature2vec,
+  title={Feature2Vec: Distributional semantic modelling of human property knowledge},
+  author={Derby, Steven and Miller, Paul and Devereux, Barry},
+  journal={arXiv preprint arXiv:1908.11439},
+  year={2019}
+}
+}
 
